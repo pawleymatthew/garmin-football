@@ -21,10 +21,7 @@ fluidPage(
     
     # main panel for outputs
     mainPanel(
-        #tableOutput("marker_table"),
-        #tableOutput("xy_basis"),
         plotOutput("heatmap"),
-        #plotOutput("run"),
         width = 6
     )
 )
