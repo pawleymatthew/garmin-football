@@ -1,3 +1,5 @@
+Run the app: `shiny::runGitHub(repo ="garmin-football", username = "pawleymatthew")`
+
 # Recording Instructions:
 
 1. Start a Garmin activity with "Auto Lap = Manual Only" and "Lap Key = On"
