@@ -17,3 +17,5 @@
 7. Set a title and subtitle for the plot, if desired.
 8. Click 'Generate heatmap' to make the graphic. Thereafter, the graphic will update automatically when inputs are updated. (The plot will momentarily give an error if you change the input file; this will disappear after the file is processed.)
 9. Click 'Download' to save the plot as a PNG file. 
+
+An example .fit file is provided in the /data folder. For this example, 1st half = laps 1 and 3 and 2nd half = lap 5. 
