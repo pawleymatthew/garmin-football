@@ -11,8 +11,33 @@ library(ggplot2)
 
 source("helpers.R")
 
+ui <- fluidPage(
+
+    # side bar for inputs
+    sidebarPanel(
+        fileInput(inputId = "file", label = "", accept = ".fit", buttonLabel = "Select file..."),
+        hr(),
+        leafletOutput("map"),
+        hr(),
+        checkboxGroupInput(inputId = "first_laps", label = "1st half", choices = 1:3, inline = TRUE),
+        checkboxGroupInput(inputId = "second_laps", label = "2nd half", choices = 1:3, inline = TRUE),
+        hr(),
+        textInput(inputId = "title", label = "", value = "", placeholder = "Plot title..."),
+        textInput(inputId = "subtitle", label = "", value = "", placeholder = "Plot subtitle..."),
+        actionButton("goHeatmap", "Generate heatmap"),
+        downloadButton('downloadHeatmap', 'Download'),
+        width = 6
+    ),
+    
+    # main panel for outputs
+    mainPanel(
+        plotOutput("heatmap"),
+        width = 6
+    )
+)
+
 # Define server logic required to draw a histogram
-function(input, output, session) {
+server <- function(input, output, session) {
     
     # before inputs are given
     
@@ -126,6 +151,8 @@ function(input, output, session) {
         filename = function() { "heatmap.png" },
         content = function(file) {
             ggsave(file, heatmap())
-    })
+        })
     
 }
+
+shinyApp(ui, server)
