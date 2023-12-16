@@ -8,6 +8,8 @@ library(leaflet.extras2)
 library(pracma)
 library(soccermatics)
 library(ggplot2)
+library(lubridate)
+library(knitr)
 
 source("helpers.R")
 
@@ -22,8 +24,10 @@ ui <- fluidPage(
         checkboxGroupInput(inputId = "first_laps", label = "1st half", choices = 1:3, inline = TRUE),
         checkboxGroupInput(inputId = "second_laps", label = "2nd half", choices = 1:3, inline = TRUE),
         hr(),
+        numericInput(inputId = "goals", label = "Goals", value = 0, min = 0, step = 1),
+        hr(),
         textInput(inputId = "title", label = "", value = "", placeholder = "Plot title..."),
-        textInput(inputId = "subtitle", label = "", value = "", placeholder = "Plot subtitle..."),
+        checkboxGroupInput(inputId = "subtitle", label = "Subtitle", choices = c("Date", "Distance", "Goals"), selected = c("Date", "Distance", "Goals"), inline = TRUE),
         actionButton("goHeatmap", "Generate heatmap"),
         downloadButton('downloadHeatmap', 'Download'),
         width = 6
@@ -32,6 +36,7 @@ ui <- fluidPage(
     # main panel for outputs
     mainPanel(
         plotOutput("heatmap"),
+        dataTableOutput("stats"), # TO BE ADDED
         width = 6
     )
 )
@@ -136,15 +141,33 @@ server <- function(input, output, session) {
     # create outputs
     
     heatmap <- reactive({
-        soccermatics::soccerHeatmap(df = soccerData(), 
-                                    kde = TRUE, 
+        dist_text <- paste0("Distance: ", round(sum(diff(soccerData()$distance), na.rm = TRUE) / 1000, digits = 2), "km")
+        date_text <- paste("Date:", format(lubridate::date(soccerData()$timestamp[1]), "%d %B %Y"))
+        goals_text <- paste("Goals:", as.character(input$goals))
+        text_vec <- c(
+            ifelse("Date" %in% input$subtitle, date_text, NA),
+            ifelse("Distance" %in% input$subtitle, dist_text, NA),
+            ifelse("Goals" %in% input$subtitle, goals_text, NA))
+        subtitle_text <- paste(text_vec[!is.na(text_vec)], collapse = ", ")
+        soccerData() %>%
+        soccermatics::soccerHeatmap(kde = TRUE, 
                                     title = input$title, 
-                                    subtitle = input$subtitle,
+                                    subtitle = subtitle_text,
                                     arrow = "r")
     })
     
     output$heatmap <- renderPlot({
         heatmap()
+    })
+    
+    output$stats <- renderDataTable({
+        soccerData() %>%
+            group_by(period) %>%
+            summarise(
+                duration = sum(diff(timestamp), na.rm = TRUE),
+                distance = sum(diff(distance), na.rm = TRUE), 
+                idle = sum(cadence < 60), 
+                sprints = sum(cadence > 100))
     })
     
     output$downloadHeatmap <- downloadHandler(
