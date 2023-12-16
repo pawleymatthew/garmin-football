@@ -36,7 +36,7 @@ ui <- fluidPage(
     # main panel for outputs
     mainPanel(
         plotOutput("heatmap"),
-        dataTableOutput("stats"), # TO BE ADDED
+        #dataTableOutput("stats"), # TO BE ADDED
         width = 6
     )
 )
@@ -160,15 +160,15 @@ server <- function(input, output, session) {
         heatmap()
     })
     
-    output$stats <- renderDataTable({
-        soccerData() %>%
-            group_by(period) %>%
-            summarise(
-                duration = sum(diff(timestamp), na.rm = TRUE),
-                distance = sum(diff(distance), na.rm = TRUE), 
-                idle = sum(cadence < 60), 
-                sprints = sum(cadence > 100))
-    })
+    # output$stats <- renderDataTable({
+    #     soccerData() %>%
+    #         group_by(period) %>%
+    #         summarise(
+    #             duration = sum(diff(timestamp), na.rm = TRUE),
+    #             distance = sum(diff(distance), na.rm = TRUE), 
+    #             idle = sum(cadence < 60), 
+    #             sprints = sum(cadence > 100))
+    # })
     
     output$downloadHeatmap <- downloadHandler(
         filename = function() { "heatmap.png" },
