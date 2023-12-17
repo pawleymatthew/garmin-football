@@ -3,6 +3,7 @@ read_fit <- function(file) {
   laps <- laps(temp)
   records <- records(temp) %>% 
     dplyr::bind_rows() %>%
+    dplyr::arrange(timestamp) %>%
     dplyr::rename(lng = position_long, lat = position_lat) %>%
     dplyr::rowwise() %>%
     dplyr::mutate(lap = sum(laps$start_time <= timestamp)) %>%

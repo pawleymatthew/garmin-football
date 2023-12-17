@@ -83,11 +83,11 @@ server <- function(input, output, session) {
         updateCheckboxGroupInput(session, "first_laps", choices = unique(dataInput()$lap), inline = TRUE)
         updateCheckboxGroupInput(session, "second_laps", choices = unique(dataInput()$lap), inline = TRUE)
         
-        markers$x <- rep(mean(dataInput()$lng), times = 4)
-        markers$y <- rep(mean(dataInput()$lat), times = 4)
+        markers$x <- rep(mean(dataInput()$lng, na.rm = TRUE), times = 4)
+        markers$y <- rep(mean(dataInput()$lat, na.rm = TRUE), times = 4)
         
-        map_view$lng <- mean(dataInput()$lng)
-        map_view$lat <- mean(dataInput()$lat)
+        map_view$lng <- mean(dataInput()$lng, na.rm = TRUE)
+        map_view$lat <- mean(dataInput()$lat, na.rm = TRUE)
         
         xy_basis$ex <- ex_basis(markers$x, markers$y, markers$id)
         xy_basis$ey <- ey_basis(markers$x, markers$y, markers$id)
