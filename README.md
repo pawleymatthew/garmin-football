@@ -1,4 +1,7 @@
-Run the app: `shiny::runGitHub(repo ="garmin-football", username = "pawleymatthew")`
+Run the app: 
+
+- Via the R console: `shiny::runGitHub(repo ="garmin-football", username = "pawleymatthew")`
+- In web browser: <https://pawleymatthew.shinyapps.io/garmin-football/>
 
 # Recording Instructions:
 
