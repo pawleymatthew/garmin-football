@@ -10,6 +10,7 @@ library(soccermatics)
 library(ggplot2)
 library(lubridate)
 library(knitr)
+library(DT)
 
 source("helpers.R")
 
@@ -19,14 +20,19 @@ ui <- fluidPage(
     sidebarPanel(
         fileInput(inputId = "file", label = "", accept = ".fit", buttonLabel = "Select file..."),
         hr(),
+        p("Drag markers to set pitch boundary and (1st half) direction of attack."),
         leafletOutput("map"),
         hr(),
+        p("Allocate 'laps' to 1st/2nd halves."),
         checkboxGroupInput(inputId = "first_laps", label = "1st half", choices = 1:3, inline = TRUE),
         checkboxGroupInput(inputId = "second_laps", label = "2nd half", choices = 1:3, inline = TRUE),
         hr(),
+        p("Input number of goals scored."),
         numericInput(inputId = "goals", label = "Goals", value = 0, min = 0, step = 1),
         hr(),
+        p("Write a title for the plot, e.g. the match result."),
         textInput(inputId = "title", label = "", value = "", placeholder = "Plot title..."),
+        p("Choose what information to display in the plot subtitle."),
         checkboxGroupInput(inputId = "subtitle", label = "Subtitle", choices = c("Date", "Distance", "Goals"), selected = c("Date", "Distance", "Goals"), inline = TRUE),
         actionButton("goHeatmap", "Generate heatmap"),
         downloadButton('downloadHeatmap', 'Download'),
@@ -36,7 +42,7 @@ ui <- fluidPage(
     # main panel for outputs
     mainPanel(
         plotOutput("heatmap"),
-        #dataTableOutput("stats"), # TO BE ADDED
+        dataTableOutput("stats"), # TO BE ADDED
         width = 6
     )
 )
@@ -99,7 +105,12 @@ server <- function(input, output, session) {
                        label = markers$id,
                        layerId = markers$id,
                        options = markerOptions(draggable = TRUE)) %>%
-            addPolylines(lng = dataInput()$lng, lat = dataInput()$lat, col = "red", opacity = 0.5, weight = 0.5)
+            addPolylines(lng = dataInput()$lng, lat = dataInput()$lat, col = "red", opacity = 0.5, weight = 0.5) %>%
+            addPolygons(lng = c(markers$x, markers$x[1]),
+                        lat = c(markers$y, markers$y[1]),
+                        layerId = "markerfill",
+                        weight = 0,
+                        fillColor = "blue", fillOpacity = 0.3)
     })
     
     # when markers are dragged
@@ -114,14 +125,20 @@ server <- function(input, output, session) {
         
         leafletProxy("map") %>%
             clearMarkers() %>%
+            removeShape(layerId = "markerfill") %>%
             addMarkers(lng = markers$x, 
                        lat = markers$y,
                        label = markers$id,
                        layerId = markers$id,
-                       options = markerOptions(draggable = TRUE))
+                       options = markerOptions(draggable = TRUE)) %>%
+            addPolygons(lng = c(markers$x, markers$x[1]),
+                        lat = c(markers$y, markers$y[1]),
+                        layerId = "markerfill",
+                        weight = 0,
+                        fillColor = "blue", fillOpacity = 0.3)
     })
     
-    # when Generate Heatmap is clicked (and inputs are updated thereafter)
+    # when Generate Heatmap is clicked (or inputs are updated thereafter)
     
     soccerData <- reactive({
         req(input$goHeatmap)
@@ -129,6 +146,8 @@ server <- function(input, output, session) {
         marker_pts <- ll_to_xy(lng = markers$x, lat = markers$y, ex = xy_basis$ex, ey = xy_basis$ey)
         df <- dataInput() %>%
             dplyr::mutate(x = xy_pts[1, ], y = xy_pts[2, ]) %>%
+            dplyr::mutate(interval_duration = c(NA, diff(timestamp))) %>%
+            dplyr::mutate(interval_distance = c(NA, diff(distance))) %>%
             dplyr::filter(lap %in% c(input$first_laps, input$second_laps)) %>%
             dplyr::mutate(period = case_when(lap %in% input$first_laps ~ 1, lap %in% input$second_laps ~ 2)) %>%
             soccermatics::soccerTransform(xMin = min(marker_pts[1, ]), xMax = max(marker_pts[1, ]),
@@ -141,7 +160,7 @@ server <- function(input, output, session) {
     # create outputs
     
     heatmap <- reactive({
-        dist_text <- paste0("Distance: ", round(sum(diff(soccerData()$distance), na.rm = TRUE) / 1000, digits = 2), "km")
+        dist_text <- paste0("Distance: ", round(sum(soccerData()$interval_distance, na.rm = TRUE) / 1000, digits = 2), "km")
         date_text <- paste("Date:", format(lubridate::date(soccerData()$timestamp[1]), "%d %B %Y"))
         goals_text <- paste("Goals:", as.character(input$goals))
         text_vec <- c(
@@ -160,15 +179,13 @@ server <- function(input, output, session) {
         heatmap()
     })
     
-    # output$stats <- renderDataTable({
-    #     soccerData() %>%
-    #         group_by(period) %>%
-    #         summarise(
-    #             duration = sum(diff(timestamp), na.rm = TRUE),
-    #             distance = sum(diff(distance), na.rm = TRUE), 
-    #             idle = sum(cadence < 60), 
-    #             sprints = sum(cadence > 100))
-    # })
+    output$stats <- renderDataTable({
+        soccerData() %>%
+            group_by(period) %>%
+            summarise(
+                duration = sum(interval_duration, na.rm = TRUE),
+                distance = sum(interval_distance, na.rm = TRUE))
+    })
     
     output$downloadHeatmap <- downloadHandler(
         filename = function() { "heatmap.png" },

@@ -375,12 +375,11 @@ injury;</li>
 <div id="using-the-app" class="section level1">
 <h1>Using the app</h1>
 <ol style="list-style-type: decimal">
-<li>Go to Garmin Connect, select the acivity, and click ‘Export
-Original’.</li>
-<li>Extract the the .fit file from the .zip file.</li>
-<li>Run the app in R via
-<code>shiny::runGitHub(repo =&quot;garmin-football&quot;, username = &quot;pawleymatthew&quot;)</code>.</li>
-<li>Upload the .fit file.</li>
+<li>Find the relevant activity on Garmin Connect or Strava, and click
+<code>Export Original</code>.</li>
+<li>If required, extract the the <code>.fit</code> file from the
+<code>.zip</code> file.</li>
+<li>Upload the <code>.fit</code> file.</li>
 <li>Set the pitch boundaries by placing the markers at the corners,
 toggling between the OpenStreetView and Satellite map views if
 necessary. The marker labels indicate the positions (“RB” = right back,
@@ -395,12 +394,35 @@ designate all laps as 1st half.</li>
 plot subtitle).</li>
 <li>Write a title for the plot. Choose what information you want the
 subtitle to contain.</li>
-<li>Click ‘Generate heatmap’ to make the graphic. Thereafter, the
-graphic will update automatically when inputs are updated. (The plot
-will momentarily give an error if you change the input file; this will
-disappear after the file is processed.)</li>
-<li>Click ‘Download’ to save the plot as a PNG file.</li>
+<li>Click <code>Generate heatmap</code> to make the graphic. Thereafter,
+the graphic will update automatically when inputs are updated.</li>
+<li>Click <code>Download</code> to save the plot as a PNG file.</li>
 </ol>
+</div>
+<div id="example-data" class="section level1">
+<h1>Example data</h1>
+<p>An example file is provided in the <code>data</code> folder.</p>
+<div id="griffin-fc-8-0-the-pewsham-10-december-2023" class="section level3">
+<h3>Griffin FC 8-0 The Pewsham, 10 December 2023</h3>
+<p><code>football-2023-12-10.fit</code></p>
+<ul>
+<li>Match info: <a href="https://fulltime.thefa.com/displayFixture.html?id=25855067" class="uri">https://fulltime.thefa.com/displayFixture.html?id=25855067</a></li>
+<li>First half = laps 1 and 3.</li>
+<li>Second half = lap 5 (cut short, accidentally paused watch midway
+through!).</li>
+<li>Laps 2 (break in play due to injury) and 4 (half time) should be
+excluded.</li>
+<li>Player is a left-winger attacking south-eastward in the first
+half.</li>
+</ul>
+</div>
+</div>
+<div id="to-be-addedcompleted" class="section level1">
+<h1>To be added/completed</h1>
+<ul>
+<li>Summary stats (distance, time, speed, no. sprints) for each
+half.</li>
+</ul>
 </div>
 
 
