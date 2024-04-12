@@ -1,3 +1,5 @@
+![](./figs/garmin-football.png)
+
 Run the app: 
 
 - Via the R console: `shiny::runGitHub(repo ="garmin-football", username = "pawleymatthew")`

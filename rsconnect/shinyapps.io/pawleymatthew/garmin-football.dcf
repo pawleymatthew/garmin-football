@@ -5,7 +5,7 @@ account: pawleymatthew
 server: shinyapps.io
 hostUrl: https://api.shinyapps.io/v1
 appId: 10811329
-bundleId: 8058396
+bundleId: 8101245
 url: https://pawleymatthew.shinyapps.io/garmin-football/
 version: 1
 asMultiple: FALSE
